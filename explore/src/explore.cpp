@@ -59,6 +59,7 @@ Explore::Explore()
   , prev_distance_(0)
   , last_markers_count_(0)
 {
+  stop_exploration_publisher_ = this->create_publisher<std_msgs::msg::Bool>("exploration_listener",10);
   double timeout;
   double min_frontier_size;
   this->declare_parameter<float>("planner_frequency", 1.0);
@@ -122,7 +123,7 @@ Explore::Explore()
       return_to_init_ = false;
     }
   }
-
+  start();
   exploring_timer_ = this->create_wall_timer(
       std::chrono::milliseconds((uint16_t)(1000.0 / planner_frequency_)),
       [this]() { makePlan(); });
@@ -390,6 +391,9 @@ void Explore::reachedGoal(const NavigationGoalHandle::WrappedResult& result,
 
 void Explore::start()
 {
+  auto message = std_msgs::msg::Bool();
+  message.data = false;
+  stop_exploration_publisher_->publish(message);
   RCLCPP_INFO(logger_, "Exploration started.");
 }
 
@@ -401,6 +405,14 @@ void Explore::stop(bool finished_exploring)
 
   if (return_to_init_ && finished_exploring) {
     returnToInitialPose();
+  }
+
+  if (finished_exploring){
+    
+    auto message = std_msgs::msg::Bool();
+    message.data = true;
+    RCLCPP_INFO(this->get_logger(), "Exploration is Completed");
+    stop_exploration_publisher_->publish(message);
   }
 }
 
