@@ -120,6 +120,7 @@ private:
   rclcpp::TimerBase::SharedPtr exploring_timer_;
   // rclcpp::TimerBase::SharedPtr oneshot_;
 
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr stop_exploration_publisher_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr resume_subscription_;
   void resumeCallback(const std_msgs::msg::Bool::SharedPtr msg);
 
